@@ -1,6 +1,6 @@
 {
   "name": "toshi-app-js",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "",
   "main": "src/bot.js",
   "dependencies": {
@@ -30,7 +30,7 @@
     "console": "nodemon -L src/lib/Console.js"
   },
   "engines": {
-    "node": "7.4.0"
+    "node": "8.x.x"
   },
   "author": "Toshi",
   "license": "ISC"
