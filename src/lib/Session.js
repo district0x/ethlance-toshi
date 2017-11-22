@@ -104,22 +104,50 @@ class Session {
 
   }
 
-  sendEth(value, callback) {
-    value = '0x' + unit.toWei(value, 'ether').toString(16)
-    return this.sendWei(value, callback);
+  sendEth(value, options, callback) {
+    value = '0x' + unit.toWei(value, 'ether').toString(16);
+    return this.sendWei(value, options, callback);
   }
 
-  sendWei(value, callback) {
-    if (!this.user.payment_address) {
-      if (callback) { callback(this, "Cannot send transactions to users with no payment address", null); }
+  sendWei(value, options, callback) {
+    if (!callback && typeof options == "function") {
+      callback = options;
+      options = {};
+    } else if (typeof options == "string") {
+      options = {to: options};
+    } else if (!options) {
+      options = {};
+    } else if (typeof options != "object") {
+      if (callback) { callback(this, "Invalid options", null); }
       return;
     }
+    // missing `to` is valid, but not the standard usecase
+    // this makes it require explicit `null` to set no `to` address
+    if (!options.hasOwnProperty('to')) {
+      if (!this.user.payment_address) {
+        if (callback) { callback(this, "Cannot send transactions to users with no payment address", null); }
+        return;
+      } else {
+        options.to = this.user.payment_address;
+      }
+    } else if (!options.to) {
+      delete options.to;
+    }
+    options.value = value;
+
+    // convert arguments to hex
+    ["value", "gasPrice", "gas", "nonce"].forEach((key) => {
+      if (options.hasOwnProperty(key) && typeof options[key] == "number") {
+        options[key] = "0x" + Math.floor(options[key]).toString(16);
+      }
+    });
+    if (options.hasOwnProperty("data") && options.data instanceof Buffer) {
+      options.data = "0x" + options.data.toString("hex");
+    }
+
     this.bot.client.rpc(this, {
       method: "sendTransaction",
-      params: {
-        to: this.user.payment_address,
-        value: value
-      }
+      params: options
     }, (session, error, result) => {
       if (result) {
         session.reply(SOFA.Payment({
@@ -127,7 +155,7 @@ class Session {
           value: value,
           txHash: result.txHash,
           fromAddress: this.config.tokenIdAddress,
-          toAddress: this.user.payment_address
+          toAddress: options.to
         }));
       }
       if (callback) { callback(session, error, result); }
