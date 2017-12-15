@@ -91,7 +91,7 @@ class Session {
       fiat_type = 'ether';
     }
     if (fiat_type.toLowerCase() in unit.unitMap) {
-      return getbal.then((bal) => {
+      return getbal.then(([bal, _]) => {
         return Promise.resolve(unit.fromWei(bal, fiat_type.toLowerCase()));
       });
     } else {
