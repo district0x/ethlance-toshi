@@ -69,7 +69,7 @@ function onPayment(session, message) {
 // STATES
 
 function welcome(session) {
-  sendMessage(session, `Hello Token!`)
+  sendMessage(session, `Welcome to Ethlance`)
 }
 
 function pong(session) {
@@ -93,11 +93,23 @@ function donate(session) {
 // HELPERS
 
 function sendMessage(session, message) {
-  let controls = [
-    {type: 'button', label: 'Ping', value: 'ping'},
-    {type: 'button', label: 'Count', value: 'count'},
-    {type: 'button', label: 'Donate', value: 'donate'}
-  ]
+    let controls = [
+        {type: 'group', label: 'Menu', controls: [
+            {type: 'button',
+             label: 'Become A Freelancer',
+             action: 'Webview::https://ethlance.com/#/become-freelancer'},
+            {type: 'button',
+             label: 'Become An Employer',
+             action: 'Webview::https://ethlance.com/#/become-employer'},
+            {type: 'button',
+             label: 'Find Work',
+             action: 'Webview::https://ethlance.com/#/find/work'},
+            {type: 'button',
+             label: 'Find Candidates',
+             action: 'Webview::https://ethlance.com/#/find/candidates'}
+        ]},
+        {type: 'button', label: 'Ethlance', action: 'Webview::https://ethlance.com/'}
+    ]
   session.reply(SOFA.Message({
     body: message,
     controls: controls,
